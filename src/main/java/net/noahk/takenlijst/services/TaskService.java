@@ -1,29 +1,28 @@
 package net.noahk.takenlijst.services;
 
-import net.noahk.takenlijst.dtos.ProjectDto;
 import net.noahk.takenlijst.dtos.TaskDto;
 import net.noahk.takenlijst.models.Project;
+import net.noahk.takenlijst.models.Task;
 import net.noahk.takenlijst.repositories.ProjectRepository;
+import net.noahk.takenlijst.repositories.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
-public class ProjectService {
+public class TaskService {
 
-    private final ProjectRepository repository;
+    private final TaskRepository repository;
 
-    public ProjectService(ProjectRepository repository) {
-        this.repository = repository;
-    }
+    public TaskService(TaskRepository repository) {this.repository = repository;}
 
-    public Iterable<ProjectDto> getProjects() {
+    public Iterable<TaskDto> getTasks() {
         var items = repository.findAll();
-        var list = new ArrayList<ProjectDto>();
+        var list = new ArrayList<TaskDto>();
 
         for (var item : items) {
-            var dto = new ProjectDto();
+            var dto = new TaskDto();
 
             dto = fillDto(item, dto);
 
@@ -32,30 +31,26 @@ public class ProjectService {
         return list;
     }
 
-    public Optional<ProjectDto> getProject(Long id) {
+    public Optional<TaskDto> getTask(Long id) {
         var record = repository.findById(id);
         if (record.isEmpty()) {
             return Optional.empty();
         }
         var item = record.get();
 
-        var dto = new ProjectDto();
-        dto = fillDto(item, dto);
+        var dto = new TaskDto();
 
-        dto.tasks = new ArrayList<>();
-        for(var task : item.getTasks()) {
-            dto.tasks.add(TaskService.fillDto(task, new TaskDto()));
-        }
+        dto = fillDto(item, dto);
 
         return Optional.of(dto);
     }
 
-    public boolean update(Long id, ProjectDto project) {
+    public boolean update(Long id, TaskDto task) {
         var item = repository.findById(id);
         if (item.isPresent()) {
             var itemToUpdate = item.get();
 
-            itemToUpdate = fillEntity(itemToUpdate, project);
+            itemToUpdate = fillEntity(itemToUpdate, task);
 
             repository.save(itemToUpdate);
             return true;
@@ -63,26 +58,31 @@ public class ProjectService {
         return false;
     }
 
-    public Long create(ProjectDto project) {
-        var toSave = new Project();
+    public Long create(TaskDto task) {
+        var toSave = new Task();
 
-        toSave = fillEntity(toSave, project);
-        toSave.setProjectLeaderId(project.projectLeaderId);
+        toSave = fillEntity(toSave, task);
 
         var result = repository.save(toSave);
         return result.getId();
     }
 
-    protected static Project fillEntity(Project entity, ProjectDto dto) {
+    protected static Task fillEntity(Task entity, TaskDto dto) {
         entity.setName(dto.name);
+        entity.setDescription(dto.description);
+        if (dto.projectId != 0) {
+            var project = new Project();
+            project.setId(dto.projectId);
+            entity.setProject(project);
+        }
 
         return entity;
     }
 
-    protected static ProjectDto fillDto(Project entity, ProjectDto dto) {
+    protected static TaskDto fillDto(Task entity, TaskDto dto) {
         dto.id = entity.getId();
         dto.name = entity.getName();
-        dto.projectLeaderId = entity.getProjectLeaderId();
+        dto.description = entity.getDescription();
 
         return dto;
     }
