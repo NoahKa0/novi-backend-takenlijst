@@ -1,7 +1,10 @@
 package net.noahk.takenlijst.dtos;
 
+import net.noahk.takenlijst.models.Comment;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 public class TaskDto {
 
@@ -16,5 +19,7 @@ public class TaskDto {
     public String description;
 
     public long projectId;
+
+    public List<CommentDto> comments;
 
 }

@@ -1,6 +1,7 @@
 package net.noahk.takenlijst.models;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name="tasks")
@@ -17,6 +18,9 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
+
+    @OneToMany(mappedBy = "task")
+    private List<Comment> comments;
 
     public Long getId() {
         return id;
@@ -48,5 +52,13 @@ public class Task {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

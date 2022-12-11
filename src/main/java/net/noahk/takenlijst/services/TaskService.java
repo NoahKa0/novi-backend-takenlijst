@@ -1,9 +1,9 @@
 package net.noahk.takenlijst.services;
 
+import net.noahk.takenlijst.dtos.CommentDto;
 import net.noahk.takenlijst.dtos.TaskDto;
 import net.noahk.takenlijst.models.Project;
 import net.noahk.takenlijst.models.Task;
-import net.noahk.takenlijst.repositories.ProjectRepository;
 import net.noahk.takenlijst.repositories.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +41,11 @@ public class TaskService {
         var dto = new TaskDto();
 
         dto = fillDto(item, dto);
+
+        dto.comments = new ArrayList<>();
+        for(var comment : item.getComments()) {
+            dto.comments.add(CommentService.fillDto(comment, new CommentDto()));
+        }
 
         return Optional.of(dto);
     }
