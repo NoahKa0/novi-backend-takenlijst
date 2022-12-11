@@ -8,6 +8,7 @@ import net.noahk.takenlijst.repositories.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -46,6 +47,8 @@ public class TaskService {
         for(var comment : item.getComments()) {
             dto.comments.add(CommentService.fillDto(comment, new CommentDto()));
         }
+
+        Collections.sort(dto.comments);
 
         return Optional.of(dto);
     }

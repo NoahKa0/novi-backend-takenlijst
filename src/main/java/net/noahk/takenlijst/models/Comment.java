@@ -1,6 +1,7 @@
 package net.noahk.takenlijst.models;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="comment")
@@ -11,6 +12,8 @@ public class Comment {
     private Long id;
 
     private String text;
+
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
@@ -38,5 +41,13 @@ public class Comment {
 
     public void setTask(Task task) {
         this.task = task;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

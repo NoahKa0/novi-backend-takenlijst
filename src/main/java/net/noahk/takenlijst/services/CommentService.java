@@ -6,6 +6,7 @@ import net.noahk.takenlijst.models.Task;
 import net.noahk.takenlijst.repositories.CommentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -61,6 +62,7 @@ public class CommentService {
         var toSave = new Comment();
 
         toSave = fillEntity(toSave, comment);
+        toSave.setCreatedAt(LocalDateTime.now());
 
         var result = repository.save(toSave);
         return result.getId();
@@ -80,6 +82,7 @@ public class CommentService {
     protected static CommentDto fillDto(Comment entity, CommentDto dto) {
         dto.id = entity.getId();
         dto.text = entity.getText();
+        dto.createdAt = entity.getCreatedAt();
 
         return dto;
     }
