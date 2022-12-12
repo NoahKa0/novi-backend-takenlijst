@@ -2,6 +2,7 @@ package net.noahk.takenlijst.controllers;
 
 import net.noahk.takenlijst.dtos.ProjectDto;
 import net.noahk.takenlijst.services.ProjectService;
+import net.noahk.takenlijst.util.Util;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -38,11 +39,7 @@ public class ProjectsController {
     @PutMapping("/{id}")
     public ResponseEntity<String> updateProject(@PathVariable long id, @Valid @RequestBody ProjectDto project, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            String response = "";
-            for (var error : bindingResult.getFieldErrors()) {
-                response += error.getField() + ": " + error.getDefaultMessage() + "\n";
-            }
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return Util.getBindingResultResponse(bindingResult);
         }
 
         boolean updated = service.update(id, project);
@@ -59,14 +56,10 @@ public class ProjectsController {
     @PostMapping("")
     public ResponseEntity<String> create(@Valid @RequestBody ProjectDto project, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            String response = "";
-            for (var error : bindingResult.getFieldErrors()) {
-                response += error.getField() + ": " + error.getDefaultMessage() + "\n";
-            }
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return Util.getBindingResultResponse(bindingResult);
         }
 
-        Long id = service.createProject(project);
+        Long id = service.create(project);
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/projects/" + id).toUriString());
 

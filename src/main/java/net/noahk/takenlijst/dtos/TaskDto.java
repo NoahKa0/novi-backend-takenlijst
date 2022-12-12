@@ -1,12 +1,12 @@
 package net.noahk.takenlijst.dtos;
 
-import net.noahk.takenlijst.models.Task;
+import net.noahk.takenlijst.models.Comment;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class ProjectDto {
+public class TaskDto {
 
     public long id;
 
@@ -14,8 +14,12 @@ public class ProjectDto {
     @Size(min=2, max=100)
     public String name;
 
-    public long projectLeaderId;
+    @NotBlank
+    @Size(min=2, max=999)
+    public String description;
 
-    public List<TaskDto> tasks;
+    public long projectId;
+
+    public List<CommentDto> comments;
 
 }
