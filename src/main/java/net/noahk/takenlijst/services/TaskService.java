@@ -1,7 +1,9 @@
 package net.noahk.takenlijst.services;
 
 import net.noahk.takenlijst.dtos.CommentDto;
+import net.noahk.takenlijst.dtos.LabelDto;
 import net.noahk.takenlijst.dtos.TaskDto;
+import net.noahk.takenlijst.models.Label;
 import net.noahk.takenlijst.models.Project;
 import net.noahk.takenlijst.models.Task;
 import net.noahk.takenlijst.repositories.TaskRepository;
@@ -43,11 +45,14 @@ public class TaskService {
 
         dto = fillDto(item, dto);
 
+        if (item.getLabel() != null) {
+            dto.label = LabelService.fillDto(item.getLabel(), new LabelDto());
+        }
+
         dto.comments = new ArrayList<>();
         for(var comment : item.getComments()) {
             dto.comments.add(CommentService.fillDto(comment, new CommentDto()));
         }
-
         Collections.sort(dto.comments);
 
         return Optional.of(dto);
@@ -78,10 +83,17 @@ public class TaskService {
     protected static Task fillEntity(Task entity, TaskDto dto) {
         entity.setName(dto.name);
         entity.setDescription(dto.description);
+        entity.setCompletedAt(dto.completedAt);
         if (dto.projectId != 0) {
             var project = new Project();
             project.setId(dto.projectId);
             entity.setProject(project);
+        }
+
+        if (dto.labelId != 0) {
+            var label = new Label();
+            label.setId(dto.labelId);
+            entity.setLabel(label);
         }
 
         return entity;
@@ -91,6 +103,7 @@ public class TaskService {
         dto.id = entity.getId();
         dto.name = entity.getName();
         dto.description = entity.getDescription();
+        dto.completedAt = entity.getCompletedAt();
 
         return dto;
     }
