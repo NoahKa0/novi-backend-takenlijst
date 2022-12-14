@@ -27,6 +27,8 @@ public class TaskDto {
 
     public List<CommentDto> comments;
 
+    public List<PointDto> points;
+
     public LabelDto label;
 
 }

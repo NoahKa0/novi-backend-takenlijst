@@ -29,6 +29,9 @@ public class Task {
     @OneToMany(mappedBy = "task")
     private List<Comment> comments;
 
+    @OneToMany(mappedBy = "task")
+    private List<Point> points;
+
     public Long getId() {
         return id;
     }
@@ -83,5 +86,13 @@ public class Task {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public List<Point> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<Point> points) {
+        this.points = points;
     }
 }

@@ -2,6 +2,7 @@ package net.noahk.takenlijst.services;
 
 import net.noahk.takenlijst.dtos.CommentDto;
 import net.noahk.takenlijst.dtos.LabelDto;
+import net.noahk.takenlijst.dtos.PointDto;
 import net.noahk.takenlijst.dtos.TaskDto;
 import net.noahk.takenlijst.models.Label;
 import net.noahk.takenlijst.models.Project;
@@ -47,6 +48,11 @@ public class TaskService {
 
         if (item.getLabel() != null) {
             dto.label = LabelService.fillDto(item.getLabel(), new LabelDto());
+        }
+
+        dto.points = new ArrayList<>();
+        for(var point : item.getPoints()) {
+            dto.points.add(PointService.fillDto(point, new PointDto()));
         }
 
         dto.comments = new ArrayList<>();
