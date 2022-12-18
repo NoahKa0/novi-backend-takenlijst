@@ -10,8 +10,10 @@ import net.noahk.takenlijst.models.Task;
 import net.noahk.takenlijst.repositories.TaskRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,6 +66,54 @@ public class TaskService {
         return Optional.of(dto);
     }
 
+    public List<TaskDto> getTasksByProject(Long id, boolean onlyNonCompleted) {
+        var records = repository.getTasksByProjectId(id);
+        var ret = new ArrayList<TaskDto>();
+
+        for (var record : records) {
+            if (onlyNonCompleted && record.getCompletedAt() != null) {
+                continue;
+            }
+            var dto = new TaskDto();
+
+            dto = fillDto(record, dto);
+
+            if (record.getLabel() != null) {
+                dto.label = LabelService.fillDto(record.getLabel(), new LabelDto());
+            }
+
+            ret.add(dto);
+        }
+
+        return ret;
+    }
+
+    public List<Integer> getBurnDown(LocalDate start, LocalDate end, boolean predicted) {
+        var records = repository.getTasksByCompletedAtBetween(start, end);
+        var ret = new ArrayList<Integer>();
+
+        LocalDate current = start.minusDays(2);
+        while (current.isBefore(end)) {
+            current = current.plusDays(1);
+
+            int total = 0;
+            for (var record : records) {
+                if (record.getCompletedAt().isAfter(current)) {
+                    for (var point : record.getPoints()) {
+                        if (predicted) {
+                            total += point.getExpectedPoints();
+                        } else {
+                            total += point.getActualPoints();
+                        }
+                    }
+                }
+            }
+            ret.add(total);
+        }
+
+        return ret;
+    }
+
     public boolean update(Long id, TaskDto task) {
         var item = repository.findById(id);
         if (item.isPresent()) {
@@ -84,6 +134,10 @@ public class TaskService {
 
         var result = repository.save(toSave);
         return result.getId();
+    }
+
+    public void delete(long id) {
+        repository.deleteById(id);
     }
 
     protected static Task fillEntity(Task entity, TaskDto dto) {

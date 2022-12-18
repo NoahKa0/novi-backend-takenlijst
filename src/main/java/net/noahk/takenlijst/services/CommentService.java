@@ -70,6 +70,10 @@ public class CommentService {
         return result.getId();
     }
 
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
+
     protected static Comment fillEntity(Comment entity, CommentDto dto) {
         entity.setText(dto.text);
         if (dto.taskId != 0) {

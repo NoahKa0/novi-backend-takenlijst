@@ -64,4 +64,15 @@ public class AttachmentsController {
 
         return ResponseEntity.created(uri).body("Attachment created!");
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (service.getAttachment(id).isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+
+        return ResponseEntity.ok("Attachment deleted!");
+    }
 }

@@ -72,4 +72,15 @@ public class PointsController {
 
         return ResponseEntity.created(uri).body("Point created!");
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (service.getPoint(id).isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+
+        return ResponseEntity.ok("Point deleted!");
+    }
 }

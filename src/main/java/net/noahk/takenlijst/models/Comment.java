@@ -16,7 +16,7 @@ public class Comment {
 
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
     private List<Attachment> attachments;
 
     @ManyToOne

@@ -56,4 +56,15 @@ public class LabelsController {
 
         return ResponseEntity.created(uri).body("Label created!");
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (service.getLabel(id).isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+
+        return ResponseEntity.ok("Label deleted!");
+    }
 }

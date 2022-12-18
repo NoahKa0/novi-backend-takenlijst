@@ -72,4 +72,15 @@ public class CommentsController {
 
         return ResponseEntity.created(uri).body("Comment created!");
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (service.getComment(id).isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+
+        return ResponseEntity.ok("Comment deleted!");
+    }
 }

@@ -4,6 +4,7 @@ import net.noahk.takenlijst.dtos.TaskDto;
 import net.noahk.takenlijst.services.ProjectService;
 import net.noahk.takenlijst.services.TaskService;
 import net.noahk.takenlijst.util.Util;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/tasks")
@@ -28,6 +30,26 @@ public class TasksController {
     @GetMapping("")
     public ResponseEntity<Iterable<TaskDto>> index() {
         return ResponseEntity.ok(service.getTasks());
+    }
+
+    @GetMapping("/all/{id}")
+    public ResponseEntity<Iterable<TaskDto>> getAll(@PathVariable long id) {
+        return ResponseEntity.ok(service.getTasksByProject(id, false));
+    }
+
+    @GetMapping("/todo/{id}")
+    public ResponseEntity<Iterable<TaskDto>> getTodo(@PathVariable long id) {
+        return ResponseEntity.ok(service.getTasksByProject(id, true));
+    }
+
+    @GetMapping("/burndown/{start}/{end}")
+    public ResponseEntity<Iterable<Integer>> getBurndown(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        return ResponseEntity.ok(service.getBurnDown(start, end, false));
+    }
+
+    @GetMapping("/burndown-predicted/{start}/{end}")
+    public ResponseEntity<Iterable<Integer>> getPredictedBurndown(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        return ResponseEntity.ok(service.getBurnDown(start, end, true));
     }
 
     @GetMapping("/{id}")
@@ -71,5 +93,16 @@ public class TasksController {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/tasks/" + id).toUriString());
 
         return ResponseEntity.created(uri).body("Task created!");
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (service.getTask(id).isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+
+        return ResponseEntity.ok("Attachment deleted!");
     }
 }

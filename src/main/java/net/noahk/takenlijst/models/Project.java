@@ -15,7 +15,7 @@ public class Project {
 
     private Long projectLeaderId;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
     private List<Task> tasks;
 
     public Long getId() {

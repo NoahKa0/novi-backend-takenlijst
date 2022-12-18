@@ -73,6 +73,10 @@ public class ProjectService {
         return result.getId();
     }
 
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
+
     protected static Project fillEntity(Project entity, ProjectDto dto) {
         entity.setName(dto.name);
 
