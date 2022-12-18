@@ -65,4 +65,15 @@ public class ProjectsController {
 
         return ResponseEntity.created(uri).body("Project created!");
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (service.getProject(id).isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+
+        return ResponseEntity.ok("Project deleted!");
+    }
 }

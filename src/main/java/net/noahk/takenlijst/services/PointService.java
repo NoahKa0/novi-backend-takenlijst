@@ -66,6 +66,10 @@ public class PointService {
         return result.getId();
     }
 
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
+
     protected static Point fillEntity(Point entity, PointDto dto) {
         entity.setDescription(dto.description);
         entity.setActualPoints(dto.actualPoints);

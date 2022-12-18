@@ -53,6 +53,10 @@ public class AttachmentService {
         return result.getId();
     }
 
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
+
     protected static Attachment fillEntity(Attachment entity, AttachmentDto dto) {
         entity.setFilename(dto.filename);
         entity.setFiletype(dto.filetype);

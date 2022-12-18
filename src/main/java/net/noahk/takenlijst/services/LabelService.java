@@ -65,6 +65,10 @@ public class LabelService {
         return result.getId();
     }
 
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
+
     protected static Label fillEntity(Label entity, LabelDto dto) {
         entity.setName(dto.name);
         entity.setRed(dto.red);
