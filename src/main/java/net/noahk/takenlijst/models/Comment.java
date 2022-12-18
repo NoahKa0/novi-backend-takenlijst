@@ -2,6 +2,7 @@ package net.noahk.takenlijst.models;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="comment")
@@ -14,6 +15,9 @@ public class Comment {
     private String text;
 
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "comment")
+    private List<Attachment> attachments;
 
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
@@ -33,6 +37,14 @@ public class Comment {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public Task getTask() {
