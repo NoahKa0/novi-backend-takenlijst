@@ -3,6 +3,7 @@ package net.noahk.takenlijst.dtos;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CommentDto implements Comparable<CommentDto> {
 
@@ -15,6 +16,8 @@ public class CommentDto implements Comparable<CommentDto> {
     public long taskId;
 
     public LocalDateTime createdAt;
+
+    public List<AttachmentDto> attachments;
 
     @Override
     public int compareTo(CommentDto commentDto) {

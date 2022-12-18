@@ -1,5 +1,6 @@
 package net.noahk.takenlijst.services;
 
+import net.noahk.takenlijst.dtos.AttachmentDto;
 import net.noahk.takenlijst.dtos.CommentDto;
 import net.noahk.takenlijst.models.Comment;
 import net.noahk.takenlijst.models.Task;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -83,6 +85,12 @@ public class CommentService {
         dto.id = entity.getId();
         dto.text = entity.getText();
         dto.createdAt = entity.getCreatedAt();
+
+        var attachments = entity.getAttachments();
+        dto.attachments = new ArrayList<AttachmentDto>();
+        for (var attachment : attachments) {
+            dto.attachments.add(AttachmentService.fillDto(attachment, new AttachmentDto()));
+        }
 
         return dto;
     }
