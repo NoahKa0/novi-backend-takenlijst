@@ -14,8 +14,8 @@ public class ProjectDto {
     @Size(min=2, max=100)
     public String name;
 
-    public long projectLeaderId;
-
     public List<TaskDto> tasks;
+
+    public List<String> members;
 
 }

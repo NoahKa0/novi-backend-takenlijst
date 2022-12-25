@@ -1,9 +1,13 @@
 package net.noahk.takenlijst.services;
 
 import net.noahk.takenlijst.dtos.ProjectDto;
+import net.noahk.takenlijst.dtos.ProjectMemberDto;
 import net.noahk.takenlijst.dtos.TaskDto;
 import net.noahk.takenlijst.models.Project;
+import net.noahk.takenlijst.models.User;
 import net.noahk.takenlijst.repositories.ProjectRepository;
+import net.noahk.takenlijst.repositories.UserRepository;
+import net.noahk.takenlijst.security.MyUserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,9 +17,11 @@ import java.util.Optional;
 public class ProjectService {
 
     private final ProjectRepository repository;
+    private final UserRepository userRepository;
 
-    public ProjectService(ProjectRepository repository) {
+    public ProjectService(ProjectRepository repository, UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     public Iterable<ProjectDto> getProjects() {
@@ -67,10 +73,87 @@ public class ProjectService {
         var toSave = new Project();
 
         toSave = fillEntity(toSave, project);
-        toSave.setProjectLeaderId(project.projectLeaderId);
 
         var result = repository.save(toSave);
         return result.getId();
+    }
+
+    public void assignUser(ProjectMemberDto projectMember) throws Exception {
+        var project = repository.findById(projectMember.projectId);
+        var user = userRepository.findById(projectMember.username);
+
+        if (project.isEmpty()) {
+            throw new Exception("Project not found!");
+        }
+        if (user.isEmpty()) {
+            throw new Exception("User not found!");
+        }
+
+        var toSave = project.get();
+        var members = toSave.getMembers();
+        if (members == null) {
+            members = new ArrayList<User>();
+        }
+        for (var member : members) {
+            if (member.getUsername().equals(projectMember.username)) {
+                throw new Exception("User already assigned!");
+            }
+        }
+        members.add(user.get());
+        toSave.setMembers(members);
+        repository.save(toSave);
+    }
+
+    public void unassignUser(ProjectMemberDto projectMember) throws Exception {
+        var project = repository.findById(projectMember.projectId);
+
+        if (project.isEmpty()) {
+            throw new Exception("Project not found!");
+        }
+
+        var toSave = project.get();
+        var members = toSave.getMembers();
+        User user = null;
+        var projectLeaderCount = 0;
+        for (var member : members) {
+            if (member.getUsername().equals(projectMember.username)) {
+                user = member;
+            }
+            var roles = member.getRoles();
+            var isLeader = roles.stream().anyMatch(role -> role.getRolename().equals("TEAM_LEADER"));
+            if (isLeader) {
+                projectLeaderCount++;
+            }
+        }
+        if (user == null) {
+            throw new Exception("User not in project!");
+        }
+        var roles = user.getRoles();
+        var isLeader = roles.stream().anyMatch(role -> role.getRolename().equals("TEAM_LEADER"));
+        if (projectLeaderCount == 1 && isLeader) {
+            throw new Exception("Cannot unassign user since there would be no leaders left!");
+        }
+        members.remove(user);
+        toSave.setMembers(members);
+        repository.save(toSave);
+    }
+
+    public boolean isProjectMember(MyUserDetails user, long projectId) {
+        if (user == null) {
+            return false;
+        }
+        var project = repository.findById(projectId);
+        if (project.isEmpty()) {
+            return false;
+        }
+
+        var members = project.get().getMembers();
+        for (var member : members) {
+            if (member.getUsername().equals(user.getUsername())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void delete(long id) {
@@ -86,7 +169,6 @@ public class ProjectService {
     protected static ProjectDto fillDto(Project entity, ProjectDto dto) {
         dto.id = entity.getId();
         dto.name = entity.getName();
-        dto.projectLeaderId = entity.getProjectLeaderId();
 
         return dto;
     }

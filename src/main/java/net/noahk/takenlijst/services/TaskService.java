@@ -7,6 +7,7 @@ import net.noahk.takenlijst.dtos.TaskDto;
 import net.noahk.takenlijst.models.Label;
 import net.noahk.takenlijst.models.Project;
 import net.noahk.takenlijst.models.Task;
+import net.noahk.takenlijst.models.User;
 import net.noahk.takenlijst.repositories.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -88,8 +89,8 @@ public class TaskService {
         return ret;
     }
 
-    public List<Integer> getBurnDown(LocalDate start, LocalDate end, boolean predicted) {
-        var records = repository.getTasksByCompletedAtBetween(start, end);
+    public List<Integer> getBurnDown(long id, LocalDate start, LocalDate end, boolean predicted) {
+        var records = repository.getTasksByProjectIdAndCompletedAtBetween(id, start, end);
         var ret = new ArrayList<Integer>();
 
         LocalDate current = start.minusDays(2);
@@ -156,6 +157,14 @@ public class TaskService {
             entity.setLabel(label);
         }
 
+        if (dto.assignedUser != null && !dto.assignedUser.isEmpty()) {
+            var user = new User();
+            user.setUsername(dto.assignedUser);
+            entity.setUser(user);
+        } else {
+            entity.setUser(null);
+        }
+
         return entity;
     }
 
@@ -164,6 +173,15 @@ public class TaskService {
         dto.name = entity.getName();
         dto.description = entity.getDescription();
         dto.completedAt = entity.getCompletedAt();
+        if (entity.getUser() != null) {
+            dto.assignedUser = entity.getUser().getUsername();
+        }
+        if (entity.getProject() != null) {
+            dto.projectId = entity.getProject().getId();
+        }
+        if (entity.getLabel() != null) {
+            dto.projectId = entity.getLabel().getId();
+        }
 
         return dto;
     }

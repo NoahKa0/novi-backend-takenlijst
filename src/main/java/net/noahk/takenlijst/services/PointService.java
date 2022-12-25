@@ -89,6 +89,10 @@ public class PointService {
         dto.actualPoints = entity.getActualPoints();
         dto.expectedPoints = entity.getExpectedPoints();
 
+        if (entity.getTask() != null) {
+            dto.taskId = entity.getTask().getId();
+        }
+
         return dto;
     }
 }

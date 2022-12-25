@@ -23,6 +23,10 @@ public class Task {
     private Label label;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
@@ -70,6 +74,14 @@ public class Task {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Project getProject() {

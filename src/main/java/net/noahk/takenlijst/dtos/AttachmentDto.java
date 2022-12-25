@@ -8,4 +8,6 @@ public class AttachmentDto {
 
     public String filetype;
 
+    public CommentDto comment;
+
 }

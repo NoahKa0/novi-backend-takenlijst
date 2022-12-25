@@ -1,12 +1,14 @@
 package net.noahk.takenlijst.controllers;
 
 import net.noahk.takenlijst.dtos.TaskDto;
+import net.noahk.takenlijst.security.MyUserDetails;
 import net.noahk.takenlijst.services.ProjectService;
 import net.noahk.takenlijst.services.TaskService;
 import net.noahk.takenlijst.util.Util;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -42,14 +44,14 @@ public class TasksController {
         return ResponseEntity.ok(service.getTasksByProject(id, true));
     }
 
-    @GetMapping("/burndown/{start}/{end}")
-    public ResponseEntity<Iterable<Integer>> getBurndown(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
-        return ResponseEntity.ok(service.getBurnDown(start, end, false));
+    @GetMapping("/burndown/{id}/{start}/{end}")
+    public ResponseEntity<Iterable<Integer>> getBurndown(@PathVariable long id, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        return ResponseEntity.ok(service.getBurnDown(id, start, end, false));
     }
 
-    @GetMapping("/burndown-predicted/{start}/{end}")
-    public ResponseEntity<Iterable<Integer>> getPredictedBurndown(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
-        return ResponseEntity.ok(service.getBurnDown(start, end, true));
+    @GetMapping("/burndown-predicted/{id}/{start}/{end}")
+    public ResponseEntity<Iterable<Integer>> getPredictedBurndown(@PathVariable long id, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        return ResponseEntity.ok(service.getBurnDown(id, start, end, true));
     }
 
     @GetMapping("/{id}")
@@ -62,15 +64,24 @@ public class TasksController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateTask(@PathVariable long id, @Valid @RequestBody TaskDto task, BindingResult bindingResult) {
+    public ResponseEntity<String> updateTask(@PathVariable long id, @Valid @RequestBody TaskDto task, @AuthenticationPrincipal MyUserDetails user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Util.getBindingResultResponse(bindingResult);
+        }
+
+        var taskDto = service.getTask(id);
+        if (taskDto.isEmpty()) {
+            return new ResponseEntity<>("Not found!", HttpStatus.NOT_FOUND);
+        }
+
+        if ((taskDto.get().assignedUser == null || !taskDto.get().assignedUser.equals(user.getUsername())) && !user.hasRole("TEAM_LEADER")) {
+            return new ResponseEntity<>("You are not assigned to this task!", HttpStatus.UNAUTHORIZED);
         }
 
         boolean updated = service.update(id, task);
 
         if (!updated) {
-            return new ResponseEntity<>("Not found!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Something went wrong!", HttpStatus.BAD_REQUEST);
         }
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/tasks/" + id).toUriString());
@@ -96,9 +107,14 @@ public class TasksController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable long id) {
-        if (service.getTask(id).isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> delete(@PathVariable long id, @AuthenticationPrincipal MyUserDetails user) {
+        var taskDto = service.getTask(id);
+        if (taskDto.isEmpty()) {
+            return new ResponseEntity<>("Not found!", HttpStatus.NOT_FOUND);
+        }
+
+        if ((taskDto.get().assignedUser == null || !taskDto.get().assignedUser.equals(user.getUsername())) && !user.hasRole("TEAM_LEADER")) {
+            return new ResponseEntity<>("You are not assigned to this task!", HttpStatus.UNAUTHORIZED);
         }
 
         service.delete(id);
