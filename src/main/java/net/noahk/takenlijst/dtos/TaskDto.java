@@ -1,7 +1,5 @@
 package net.noahk.takenlijst.dtos;
 
-import net.noahk.takenlijst.models.Comment;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -20,6 +18,8 @@ public class TaskDto {
     public String description;
 
     public LocalDate completedAt;
+
+    public String assignedUser;
 
     public long labelId;
 

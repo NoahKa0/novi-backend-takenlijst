@@ -1,6 +1,7 @@
 package net.noahk.takenlijst.models;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -13,10 +14,11 @@ public class Project {
 
     private String name;
 
-    private Long projectLeaderId;
-
     @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
     private List<Task> tasks;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Collection<User> members;
 
     public Long getId() {
         return id;
@@ -34,19 +36,19 @@ public class Project {
         this.name = name;
     }
 
-    public Long getProjectLeaderId() {
-        return projectLeaderId;
-    }
-
-    public void setProjectLeaderId(Long projectLeaderId) {
-        this.projectLeaderId = projectLeaderId;
-    }
-
     public List<Task> getTasks() {
         return tasks;
     }
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public Collection<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Collection<User> members) {
+        this.members = members;
     }
 }

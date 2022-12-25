@@ -1,9 +1,11 @@
 package net.noahk.takenlijst.controllers;
 
 import net.noahk.takenlijst.dtos.AttachmentDto;
+import net.noahk.takenlijst.security.MyUserDetails;
 import net.noahk.takenlijst.services.AttachmentService;
 import net.noahk.takenlijst.services.CommentService;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -42,9 +44,13 @@ public class AttachmentsController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<String> create(@PathVariable long id, @RequestParam("file")MultipartFile file) {
-        if (commentService.getComment(id).isEmpty()) {
+    public ResponseEntity<String> create(@PathVariable long id, @AuthenticationPrincipal MyUserDetails user, @RequestParam("file")MultipartFile file) {
+        var commentDto = commentService.getComment(id);
+        if (commentDto.isEmpty()) {
             return new ResponseEntity<>("First path variable must be a comment!", HttpStatus.BAD_REQUEST);
+        }
+        if (!commentDto.get().createdBy.equals(user.getUsername())) {
+            return new ResponseEntity<>("You must be the owner of the comment!", HttpStatus.UNAUTHORIZED);
         }
 
         AttachmentDto dto = new AttachmentDto();
@@ -66,9 +72,13 @@ public class AttachmentsController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable long id) {
-        if (service.getAttachment(id).isEmpty()) {
+    public ResponseEntity<?> delete(@PathVariable long id, @AuthenticationPrincipal MyUserDetails user) {
+        var attachment = service.getAttachment(id);
+        if (attachment.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        if (!attachment.get().comment.createdBy.equals(user.getUsername())) {
+            return new ResponseEntity<>("You must be the owner of the comment!", HttpStatus.UNAUTHORIZED);
         }
 
         service.delete(id);

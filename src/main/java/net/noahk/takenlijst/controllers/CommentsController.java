@@ -1,11 +1,13 @@
 package net.noahk.takenlijst.controllers;
 
 import net.noahk.takenlijst.dtos.CommentDto;
+import net.noahk.takenlijst.security.MyUserDetails;
 import net.noahk.takenlijst.services.CommentService;
 import net.noahk.takenlijst.services.TaskService;
 import net.noahk.takenlijst.util.Util;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -57,7 +59,7 @@ public class CommentsController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> create(@Valid @RequestBody CommentDto comment, BindingResult bindingResult) {
+    public ResponseEntity<String> create(@Valid @RequestBody CommentDto comment, @AuthenticationPrincipal MyUserDetails user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Util.getBindingResultResponse(bindingResult);
         }
@@ -66,7 +68,7 @@ public class CommentsController {
             return new ResponseEntity<>("taskId: must exist!", HttpStatus.BAD_REQUEST);
         }
 
-        Long id = service.create(comment);
+        Long id = service.create(comment, user);
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/comments/" + id).toUriString());
 
@@ -74,9 +76,14 @@ public class CommentsController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable long id) {
-        if (service.getComment(id).isEmpty()) {
+    public ResponseEntity<?> delete(@PathVariable long id, @AuthenticationPrincipal MyUserDetails user) {
+        var comment = service.getComment(id);
+        if (comment.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        if (!comment.get().createdBy.equals(user.getUsername())) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
         service.delete(id);

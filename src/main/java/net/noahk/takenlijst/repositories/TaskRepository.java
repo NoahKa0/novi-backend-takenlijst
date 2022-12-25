@@ -10,5 +10,5 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
 
     public List<Task> getTasksByProjectId(long projectId);
 
-    public List<Task> getTasksByCompletedAtBetween(LocalDate start, LocalDate end);
+    public List<Task> getTasksByProjectIdAndCompletedAtBetween(long id, LocalDate start, LocalDate end);
 }

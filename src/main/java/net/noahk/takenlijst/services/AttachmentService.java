@@ -1,6 +1,7 @@
 package net.noahk.takenlijst.services;
 
 import net.noahk.takenlijst.dtos.AttachmentDto;
+import net.noahk.takenlijst.dtos.CommentDto;
 import net.noahk.takenlijst.models.Attachment;
 import net.noahk.takenlijst.models.Comment;
 import net.noahk.takenlijst.repositories.AttachmentRepository;
@@ -25,6 +26,7 @@ public class AttachmentService {
         var dto = new AttachmentDto();
 
         dto = fillDto(item, dto);
+        dto.comment = CommentService.fillDto(item.getComment(), new CommentDto());
 
         return Optional.of(dto);
     }
