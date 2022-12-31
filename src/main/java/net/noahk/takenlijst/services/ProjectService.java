@@ -133,7 +133,7 @@ public class ProjectService {
         if (projectLeaderCount == 1 && isLeader) {
             throw new Exception("Cannot unassign user since there would be no leaders left!");
         }
-        members.remove(user);
+        members.removeIf((x) -> x.getUsername().equals(projectMember.username));
         toSave.setMembers(members);
         repository.save(toSave);
     }
@@ -169,6 +169,15 @@ public class ProjectService {
     protected static ProjectDto fillDto(Project entity, ProjectDto dto) {
         dto.id = entity.getId();
         dto.name = entity.getName();
+
+        dto.members = new ArrayList<String>();
+        if (entity.getMembers() != null) {
+            for (var member : entity.getMembers()) {
+                if (!dto.members.contains(member.getUsername())) {
+                    dto.members.add(member.getUsername());
+                }
+            }
+        }
 
         return dto;
     }
