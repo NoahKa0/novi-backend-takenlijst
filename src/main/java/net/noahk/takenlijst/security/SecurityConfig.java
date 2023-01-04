@@ -51,6 +51,7 @@ public class SecurityConfig  {
                 .authorizeRequests()
                 .antMatchers("/users").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
+                .antMatchers(HttpMethod.GET, "/labels").hasAnyAuthority("TEAM_MEMBER", "TEAM_LEADER")
                 .antMatchers(HttpMethod.GET, "/projects").hasAnyAuthority("TEAM_MEMBER")
                 .antMatchers(HttpMethod.GET, "/projects/**").hasAnyAuthority("TEAM_MEMBER")
                 .antMatchers(HttpMethod.GET, "/attachments/**").permitAll()
