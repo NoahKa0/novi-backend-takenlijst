@@ -98,8 +98,10 @@ public class CommentService {
 
         var attachments = entity.getAttachments();
         dto.attachments = new ArrayList<AttachmentDto>();
-        for (var attachment : attachments) {
-            dto.attachments.add(AttachmentService.fillDto(attachment, new AttachmentDto()));
+        if (attachments != null) {
+            for (var attachment : attachments) {
+                dto.attachments.add(AttachmentService.fillDto(attachment, new AttachmentDto()));
+            }
         }
         if (entity.getTask() != null) {
             dto.taskId = entity.getTask().getId();

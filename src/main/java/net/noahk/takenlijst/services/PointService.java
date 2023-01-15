@@ -16,7 +16,7 @@ public class PointService {
 
     public PointService(PointRepository repository) {this.repository = repository;}
 
-    public Iterable<PointDto> getPoints() {
+    public ArrayList<PointDto> getPoints() {
         var items = repository.findAll();
         var list = new ArrayList<PointDto>();
 

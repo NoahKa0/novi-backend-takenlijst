@@ -24,7 +24,7 @@ public class TaskService {
 
     public TaskService(TaskRepository repository) {this.repository = repository;}
 
-    public Iterable<TaskDto> getTasks() {
+    public ArrayList<TaskDto> getTasks() {
         var items = repository.findAll();
         var list = new ArrayList<TaskDto>();
 
@@ -180,7 +180,7 @@ public class TaskService {
             dto.projectId = entity.getProject().getId();
         }
         if (entity.getLabel() != null) {
-            dto.projectId = entity.getLabel().getId();
+            dto.labelId = entity.getLabel().getId();
         }
 
         return dto;

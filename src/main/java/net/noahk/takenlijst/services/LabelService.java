@@ -15,7 +15,7 @@ public class LabelService {
 
     public LabelService(LabelRepository repository) {this.repository = repository;}
 
-    public Iterable<LabelDto> getLabels() {
+    public ArrayList<LabelDto> getLabels() {
         var items = repository.findAll();
         var list = new ArrayList<LabelDto>();
 
