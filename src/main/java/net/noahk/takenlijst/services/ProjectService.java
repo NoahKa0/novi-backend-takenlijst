@@ -3,6 +3,7 @@ package net.noahk.takenlijst.services;
 import net.noahk.takenlijst.dtos.ProjectDto;
 import net.noahk.takenlijst.dtos.ProjectMemberDto;
 import net.noahk.takenlijst.dtos.TaskDto;
+import net.noahk.takenlijst.exceptions.UnmetPreconditionException;
 import net.noahk.takenlijst.models.Project;
 import net.noahk.takenlijst.models.User;
 import net.noahk.takenlijst.repositories.ProjectRepository;
@@ -78,15 +79,15 @@ public class ProjectService {
         return result.getId();
     }
 
-    public void assignUser(ProjectMemberDto projectMember) throws Exception {
+    public void assignUser(ProjectMemberDto projectMember) throws UnmetPreconditionException {
         var project = repository.findById(projectMember.projectId);
         var user = userRepository.findById(projectMember.username);
 
         if (project.isEmpty()) {
-            throw new Exception("Project not found!");
+            throw new UnmetPreconditionException("Project not found!");
         }
         if (user.isEmpty()) {
-            throw new Exception("User not found!");
+            throw new UnmetPreconditionException("User not found!");
         }
 
         var toSave = project.get();
@@ -96,7 +97,7 @@ public class ProjectService {
         }
         for (var member : members) {
             if (member.getUsername().equals(projectMember.username)) {
-                throw new Exception("User already assigned!");
+                throw new UnmetPreconditionException("User already assigned!");
             }
         }
         members.add(user.get());
@@ -104,11 +105,11 @@ public class ProjectService {
         repository.save(toSave);
     }
 
-    public void unassignUser(ProjectMemberDto projectMember) throws Exception {
+    public void unassignUser(ProjectMemberDto projectMember) throws UnmetPreconditionException {
         var project = repository.findById(projectMember.projectId);
 
         if (project.isEmpty()) {
-            throw new Exception("Project not found!");
+            throw new UnmetPreconditionException("Project not found!");
         }
 
         var toSave = project.get();
@@ -126,12 +127,12 @@ public class ProjectService {
             }
         }
         if (user == null) {
-            throw new Exception("User not in project!");
+            throw new UnmetPreconditionException("User not in project!");
         }
         var roles = user.getRoles();
         var isLeader = roles.stream().anyMatch(role -> role.getRolename().equals("TEAM_LEADER"));
         if (projectLeaderCount == 1 && isLeader) {
-            throw new Exception("Cannot unassign user since there would be no leaders left!");
+            throw new UnmetPreconditionException("Cannot unassign user since there would be no leaders left!");
         }
         members.removeIf((x) -> x.getUsername().equals(projectMember.username));
         toSave.setMembers(members);

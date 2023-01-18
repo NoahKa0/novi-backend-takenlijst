@@ -2,6 +2,7 @@ package net.noahk.takenlijst.controllers;
 
 import net.noahk.takenlijst.dtos.ProjectDto;
 import net.noahk.takenlijst.dtos.ProjectMemberDto;
+import net.noahk.takenlijst.exceptions.UnmetPreconditionException;
 import net.noahk.takenlijst.security.MyUserDetails;
 import net.noahk.takenlijst.services.ProjectService;
 import net.noahk.takenlijst.util.Util;
@@ -58,7 +59,7 @@ public class ProjectsController {
 
         try {
             service.assignUser(projectMember);
-        } catch (Exception e) {
+        } catch (UnmetPreconditionException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("User assigned!");
@@ -80,7 +81,7 @@ public class ProjectsController {
 
         try {
             service.unassignUser(projectMember);
-        } catch (Exception e) {
+        } catch (UnmetPreconditionException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("User unassigned!");
@@ -125,7 +126,7 @@ public class ProjectsController {
             projectMember.projectId = id;
 
             service.assignUser(projectMember);
-        } catch (Exception e) {
+        } catch (UnmetPreconditionException e) {
             e.printStackTrace();
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
