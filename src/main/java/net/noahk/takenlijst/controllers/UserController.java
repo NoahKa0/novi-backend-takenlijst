@@ -1,6 +1,7 @@
 package net.noahk.takenlijst.controllers;
 
 import net.noahk.takenlijst.dtos.UserDto;
+import net.noahk.takenlijst.exceptions.UnmetPreconditionException;
 import net.noahk.takenlijst.security.MyUserDetails;
 import net.noahk.takenlijst.services.AuthenticationService;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class UserController {
     public ResponseEntity<Object> createUser(@RequestBody UserDto userDto) {
         try {
             service.createUser(userDto);
-        } catch (Exception e) {
+        } catch (UnmetPreconditionException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/").toUriString());

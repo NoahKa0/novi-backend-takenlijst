@@ -2,6 +2,7 @@ package net.noahk.takenlijst.services;
 
 import net.noahk.takenlijst.dtos.AuthDto;
 import net.noahk.takenlijst.dtos.UserDto;
+import net.noahk.takenlijst.exceptions.UnmetPreconditionException;
 import net.noahk.takenlijst.models.Role;
 import net.noahk.takenlijst.models.User;
 import net.noahk.takenlijst.repositories.RoleRepository;
@@ -42,7 +43,7 @@ public class AuthenticationService {
         return jwtService.generateToken(userDetails);
     }
 
-    public void createUser(UserDto user) throws Exception {
+    public void createUser(UserDto user) throws UnmetPreconditionException {
         User toSave = new User();
         toSave.setUsername(user.username);
         toSave.setPassword(passwordEncoder.encode(user.password));
@@ -52,7 +53,7 @@ public class AuthenticationService {
             Optional<Role> role = roleRepository.findById(rolename);
 
             if (role.isEmpty()) {
-                throw new Exception("Role does not exist!");
+                throw new UnmetPreconditionException("Role does not exist!");
             }
 
             userRoles.add(role.get());
