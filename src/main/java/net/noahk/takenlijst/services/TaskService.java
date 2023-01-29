@@ -90,13 +90,16 @@ public class TaskService {
     }
 
     public List<Integer> getBurnDown(long id, LocalDate start, LocalDate end, boolean predicted) {
+        // Get all items between start and end dates.
         var records = repository.getTasksByProjectIdAndCompletedAtBetween(id, start, end);
         var ret = new ArrayList<Integer>();
 
+        // Add days to ret until we reached the end date.
         LocalDate current = start.minusDays(2);
         while (current.isBefore(end)) {
             current = current.plusDays(1);
 
+            // Find total amount of points completed before current day
             int total = 0;
             for (var record : records) {
                 if (record.getCompletedAt().isAfter(current)) {

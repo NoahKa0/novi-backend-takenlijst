@@ -95,6 +95,8 @@ public class ProjectService {
         if (members == null) {
             members = new ArrayList<User>();
         }
+
+        // If the user is already part of the project we cannot assign it again.
         for (var member : members) {
             if (member.getUsername().equals(projectMember.username)) {
                 throw new UnmetPreconditionException("User already assigned!");
@@ -116,6 +118,8 @@ public class ProjectService {
         var members = toSave.getMembers();
         User user = null;
         var projectLeaderCount = 0;
+
+        // Find amount of leaders and check if user is part of project.
         for (var member : members) {
             if (member.getUsername().equals(projectMember.username)) {
                 user = member;
@@ -126,14 +130,22 @@ public class ProjectService {
                 projectLeaderCount++;
             }
         }
+        // Cannot remove a non-existing user.
         if (user == null) {
             throw new UnmetPreconditionException("User not in project!");
         }
+
+        // Find out if the user to be removed is a leader.
         var roles = user.getRoles();
         var isLeader = roles.stream().anyMatch(role -> role.getRolename().equals("TEAM_LEADER"));
+
+        // If there is only one leader and the user to be removed is a leader we will be left without a leader.
+        // Projects must have a leader, so throw an exception.
         if (projectLeaderCount == 1 && isLeader) {
             throw new UnmetPreconditionException("Cannot unassign user since there would be no leaders left!");
         }
+
+        // Remove the user.
         members.removeIf((x) -> x.getUsername().equals(projectMember.username));
         toSave.setMembers(members);
         repository.save(toSave);

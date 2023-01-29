@@ -32,11 +32,13 @@ public class AttachmentsController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
+        // Add filename to headers for download.
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentDisposition(
                 ContentDisposition.builder("attachment")
                         .filename(attachment.get().filename).build());
 
+        // Set content type and set body to file bytes.
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.valueOf(attachment.get().filetype))
                 .headers(httpHeaders)
@@ -55,8 +57,9 @@ public class AttachmentsController {
 
         AttachmentDto dto = new AttachmentDto();
         dto.filename = file.getOriginalFilename();
-        dto.filetype = file.getContentType();
+        dto.filetype = file.getContentType(); // We need the file type to set the correct content type when the user downloads the file.
 
+        // Read file bytes.
         byte[] bytes;
         try {
             bytes = file.getBytes();
@@ -64,7 +67,7 @@ public class AttachmentsController {
             return new ResponseEntity<>("Something went wrong while reading file data!", HttpStatus.BAD_REQUEST);
         }
 
-        Long retId = service.create(dto, id, bytes);
+        Long retId = service.create(dto, id, bytes); // Bytes will be saved in the database.
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/attachments/" + retId).toUriString());
 
